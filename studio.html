@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual TRY ON - Studio</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        /* Basic Modal Styling */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 10px; position: relative; }
+        .modal-close { color: #aaa; position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-close:hover, .modal-close:focus { color: black; text-decoration: none; cursor: pointer; }
+
+        /* Clothing Grid Styling */
+        .clothing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.75rem; max-height: 300px; overflow-y: auto; padding: 5px; background-color: #f9fafb; border-radius: 5px; border: 1px solid #e5e7eb; }
+        .clothing-item { cursor: pointer; border: 1px solid #d1d5db; border-radius: 4px; overflow: hidden; background-color: white; transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out; }
+        .clothing-item:hover { transform: scale(1.05); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .clothing-item img { display: block; width: 100%; height: 80px; object-fit: contain; padding: 2px; }
+        .clothing-item p { font-size: 0.65rem; text-align: center; padding: 2px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background-color: #f3f4f6; }
+
+        /* Category Filter Buttons Styling */
+        .category-filter-btn.active { background-color: #3b82f6; color: white; font-weight: 600; }
+
+        /* Model Image Styling */
+        .model-image { max-width: 100%; max-height: 100%; height: auto; display: block; margin: auto; object-fit: contain; }
+        /* Ensure container has enough height */
+        .mannequin-container-large {
+            min-height: 500px; /* Adjust as needed */
+            max-height: 70vh; /* Prevent excessive height on large screens */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Prevent clothing overflow issues */
+            position: relative; /* Needed for absolute positioning of overlays */
+            transition: background-color 0.3s ease; /* Smooth background color transition */
+        }
+
+        /* --- Multi-Layer Clothing Overlay Styling --- */
+        .clothing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Use contain to avoid distortion */
+            pointer-events: none; /* Initially not interactive */
+            opacity: 0; /* Start hidden */
+            transition: opacity 0.3s ease; /* Only transition opacity smoothly */
+            will-change: transform, opacity; /* Optimize rendering */
+            /* transform-origin: center center; /* Ensure scaling is from the center */
+        }
+        .clothing-overlay.draggable {
+             pointer-events: auto; /* Enable interaction when draggable */
+             cursor: grab;
+        }
+        .clothing-overlay.dragging {
+            cursor: grabbing;
+            opacity: 0.85; /* Slightly transparent while dragging */
+        }
+        /* --- End Multi-Layer Clothing Overlay Styling --- */
+
+        /* Utility class */
+        .hidden { display: none; }
+
+        /* Uploaded Model Preview */
+        .uploaded-model-preview { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ccc; cursor: pointer; }
+        .uploaded-model-preview.selected { border-color: #6d28d9; /* Violet border for selected uploaded model */ box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.5); }
+        .model-select-btn.selected { /* Tailwind classes added dynamically by JS */ }
+
+        /* Custom style for color input */
+        input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 40px; /* Adjust size as needed */
+            height: 30px; /* Adjust size as needed */
+            padding: 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            vertical-align: middle; /* Align with text/icons */
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 3px;
+        }
+        input[type="color"]::-moz-color-swatch {
+            border: none;
+            border-radius: 3px;
+        }
+
+    </style>
+     <script>
+        // Basic Tailwind configuration (optional, for theme customization)
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        violet: { // Ensure violet is defined if needed for custom classes
+                             50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c4b5fd', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6', 900: '#4c1d95'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body id="studio-page" class="bg-gray-100 flex flex-col min-h-screen font-inter">
+
+    <header id="main-header" class="bg-white shadow-md py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">Virtual TRY ON</h1>
+            <nav>
+                <a href="studio.html" id="nav-dashboard" class="text-blue-600 font-semibold px-3 py-2 rounded-md text-sm">Try-On Studio</a>
+                <a href="gallery.html" id="nav-gallery" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">My Gallery</a>
+                <a href="account.html" id="nav-account" class="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium">Account</a>
+                <a href="#" id="nav-logout" class="text-red-600 hover:text-red-800 px-3 py-2 rounded-md text-sm font-medium">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="main-content flex-grow pt-8 pb-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <div class="lg:col-span-1 bg-white p-4 rounded-lg shadow-md space-y-6 flex flex-col">
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3 border-b pb-2">Choose Model</h3>
+                        <div id="model-selection-area" class="flex items-center space-x-3">
+                            <button data-model-type="default" data-gender="female" class="model-select-btn flex-1 bg-pink-100 hover:bg-pink-200 text-pink-800 py-2 px-3 rounded text-sm border-2 border-transparent transition duration-150 ease-in-out">
+                                <i class="fas fa-female mr-2"></i>Default Female
+                            </button>
+                            <button data-model-type="default" data-gender="male" class="model-select-btn flex-1 bg-blue-100 hover:bg-blue-200 text-blue-800 py-2 px-3 rounded text-sm border-2 border-transparent transition duration-150 ease-in-out">
+                                <i class="fas fa-male mr-2"></i>Default Male
+                            </button>
+                            <div id="uploaded-model-selector" class="hidden flex-col items-center space-y-2">
+                                <img id="uploaded-model-preview-btn" src="https://placehold.co/50x50/e0e0e0/777777?text=Upload" alt="Uploaded Model Preview" title="Select Uploaded Model"
+                                     class="uploaded-model-preview" data-model-type="uploaded">
+                                <button id="remove-uploaded-model-btn" class="text-red-600 hover:text-red-800 text-xs font-medium">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Upload Your Model</h3>
+                        <form id="upload-model-form" class="space-y-3">
+                             <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Model Gender:</label>
+                                <div class="flex space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="uploadModelGender" value="female" class="form-radio text-pink-600 focus:ring-pink-500" checked>
+                                        <span class="ml-2 text-sm">Female</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="uploadModelGender" value="male" class="form-radio text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-sm">Male</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="model-file-input" class="block text-sm font-medium text-gray-700 mb-1">Model Image:</label>
+                                <input type="file" id="model-file-input" name="modelFile" accept="image/png, image/jpeg, image/webp" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" required>
+                                <p class="text-xs text-gray-500 mt-1">Use a clear, full-body image with a plain background for best results.</p>
+                            </div>
+                            <button type="submit" id="upload-model-submit-btn" class="w-full bg-violet-500 hover:bg-violet-600 text-white py-2 px-3 rounded text-sm font-semibold transition duration-150 ease-in-out">
+                                <i class="fas fa-upload mr-2"></i>Upload & Use Model
+                            </button>
+                            <div id="upload-model-message" class="text-xs mt-1 hidden"></div>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3 border-b pb-2">Adjust Model Scale</h3>
+                        <p class="text-xs text-gray-500 mb-2">Adjust the model's height and visual width.</p> <div class="space-y-3">
+                            <div>
+                                <label for="height-slider" class="block text-sm font-medium text-gray-700 mb-1">Height: <span id="height-value">170</span> cm</label> <input type="range" id="height-slider" name="height" min="140" max="200" value="170" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500"> </div>
+                            <div>
+                                <label for="weight-slider" class="block text-sm font-medium text-gray-700 mb-1">Width: <span id="weight-value">100</span></label> <input type="range" id="weight-slider" name="weight" min="50" max="150" value="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-violet-500"> </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t flex-grow flex flex-col">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3 border-b pb-2">Select Clothing</h3>
+
+                        <div class="mb-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Category:</label>
+                            <div id="category-filters" class="flex flex-wrap gap-2">
+                                </div>
+                        </div>
+
+                        <div id="clothing-item-grid" class="clothing-grid mb-4 flex-grow">
+                            <p class="text-gray-500 text-sm col-span-full text-center p-4">Loading clothing...</p>
+                        </div>
+
+                        <div class="space-y-3 mt-auto">
+                            <button id="upload-clothing-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 rounded text-sm font-semibold transition duration-150 ease-in-out">
+                                <i class="fas fa-cloud-upload-alt mr-2"></i>Upload Clothing Photo
+                            </button>
+                            <button id="select-gallery-btn" class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-3 rounded text-sm font-semibold transition duration-150 ease-in-out">
+                                <i class="fas fa-images mr-2"></i>Select from My Gallery
+                            </button>
+                        </div>
+
+                         </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Virtual Try-On</h2>
+
+                    <div id="studio-mannequin-container" class="mannequin-container-large w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto bg-slate-100 rounded-lg mb-4">
+                        <img id="model-image-female"
+                             src="C:\Users\Administrator\Desktop\try on 2\female.png" alt="Female Model"
+                             class="model-image hidden" data-gender="female"
+                             onerror="this.onerror=null; this.src='https://placehold.co/300x500/f871b3/ffffff?text=Female+Model+Missing';">
+
+                        <img id="model-image-male"
+                             src="C:\Users\Administrator\Desktop\try on 2\male.png" alt="Male Model"
+                             class="model-image hidden" data-gender="male"
+                             onerror="this.onerror=null; this.src='https://placehold.co/300x500/3b82f6/ffffff?text=Male+Model+Missing';">
+
+                        <img id="model-image-uploaded"
+                             src="" alt="Uploaded Model"
+                             class="model-image hidden" data-gender=""
+                             onerror="this.onerror=null; this.src='https://placehold.co/300x500/d1d5db/ffffff?text=Upload+Error';">
+
+                        <img id="studio-clothing-overlay-bottom" src="" alt="Bottom Clothing Overlay" class="clothing-overlay" style="z-index: 1;">
+                        <img id="studio-clothing-overlay-top" src="" alt="Top Clothing Overlay" class="clothing-overlay" style="z-index: 2;">
+                    </div>
+
+                    <div id="clothing-controls" class="w-full max-w-md mx-auto space-y-3 mt-4 p-3 border rounded-md bg-gray-50 hidden">
+                         <h3 class="text-sm font-semibold text-center text-gray-600 mb-2">Adjust Fit (<span id="adjusting-item-type">Item</span>)</h3>
+                         <div>
+                             <label for="clothing-scale-slider" class="block text-xs font-medium text-gray-700 mb-1">Scale: <span id="clothing-scale-value">100</span>%</label>
+                             <input type="range" id="clothing-scale-slider" name="scale" min="20" max="200" value="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                         </div>
+                         <div class="grid grid-cols-2 gap-3">
+                             <div>
+                                 <label for="clothing-x-slider" class="block text-xs font-medium text-gray-700 mb-1">Horizontal Offset: <span id="clothing-x-value">0</span>px</label>
+                                 <input type="range" id="clothing-x-slider" name="xOffset" min="-100" max="100" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                             </div>
+                              <div>
+                                 <label for="clothing-y-slider" class="block text-xs font-medium text-gray-700 mb-1">Vertical Offset: <span id="clothing-y-value">0</span>px</label>
+                                 <input type="range" id="clothing-y-slider" name="yOffset" min="-150" max="150" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                             </div>
+                         </div>
+                         <div>
+                             <label for="clothing-opacity-slider" class="block text-xs font-medium text-gray-700 mb-1">Opacity: <span id="clothing-opacity-value">100</span>%</label>
+                             <input type="range" id="clothing-opacity-slider" name="opacity" min="0" max="100" value="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                         </div>
+                         <button id="reset-clothing-btn" class="w-full text-xs bg-gray-300 hover:bg-gray-400 text-gray-800 py-1 px-3 rounded mt-2 font-semibold transition duration-150 ease-in-out">Reset Fit</button>
+                    </div>
+
+                    <div class="w-full max-w-md mx-auto mt-4">
+                        <div class="flex items-center justify-between space-x-4 mb-4">
+                            <div class="flex items-center space-x-2">
+                                <label for="bg-color-picker" title="Choose Background Color" class="text-sm font-medium text-gray-700"><i class="fas fa-palette mr-1"></i>BG:</label>
+                                <input type="color" id="bg-color-picker" value="#f1f5f9"> </div>
+                            <button id="clear-outfit-btn" title="Clear Outfit" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded text-sm font-semibold transition duration-150 ease-in-out"><i class="fas fa-times mr-1"></i>Clear Outfit</button>
+                        </div>
+                        <button id="save-outfit-btn" title="Save Current Outfit to My Gallery" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded text-sm font-semibold mb-2 transition duration-150 ease-in-out" disabled>
+                             <i class="fas fa-save mr-1"></i>Save Outfit to Gallery
+                        </button>
+                        <div id="save-outfit-message" class="success-message text-xs mt-1 hidden text-green-600 text-center"></div>
+
+                        <button id="get-size-recommendation-btn" title="Get Size Recommendation" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-4 rounded text-sm font-semibold mb-2 transition duration-150 ease-in-out" disabled>
+                            <i class="fas fa-ruler-combined mr-1"></i>Get Size Recommendation
+                        </button>
+                        <div id="size-recommendation-output" class="text-sm text-center p-2 bg-indigo-50 border border-indigo-200 rounded hidden">
+                            </div>
+                        <div id="studio-error-message" class="error-message mt-4 hidden text-red-600 text-sm"></div>
+                        <div id="studio-success-message" class="success-message mt-4 hidden text-green-600 text-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="upload-modal" class="modal">
+        <div class="modal-content">
+            <span id="upload-modal-close" class="modal-close">&times;</span>
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Upload Clothing Item</h3>
+
+            <form id="upload-details-form">
+
+                <div class="mb-4">
+                    <label for="upload-clothing-name" class="block text-sm font-medium text-gray-700 mb-1">Clothing Name:</label>
+                    <input type="text" id="upload-clothing-name" name="uploadClothingName" placeholder="e.g., Red Summer Dress"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Intended For:</label>
+                    <div class="flex space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="uploadGender" value="female" class="form-radio text-pink-600 focus:ring-pink-500" checked>
+                            <span class="ml-2 text-sm">Female</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="uploadGender" value="male" class="form-radio text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm">Male</span>
+                        </label>
+                         <label class="inline-flex items-center">
+                            <input type="radio" name="uploadGender" value="unisex" class="form-radio text-purple-600 focus:ring-purple-500">
+                            <span class="ml-2 text-sm">Unisex</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="upload-category-select" class="block text-sm font-medium text-gray-700 mb-1">Category:</label>
+                    <select id="upload-category-select" name="uploadCategory" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500" required>
+                         <option value="" disabled selected>-- Select Category --</option>
+                         <option value="add_new">-- Add New Category --</option>
+                         </select>
+                </div>
+
+                <div id="new-category-input-container" class="mb-4 hidden">
+                    <label for="new-category-name" class="block text-sm font-medium text-gray-700 mb-1">New Category Name:</label>
+                    <input type="text" id="new-category-name" name="newCategoryName" placeholder="e.g., Accessories"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <label for="new-category-type" class="block text-sm font-medium text-gray-700 mt-2 mb-1">Category Type:</label>
+                    <select id="new-category-type" name="newCategoryType" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <option value="" disabled selected>-- Select Type --</option>
+                        <option value="top">Top (Shirts, Jackets, etc.)</option>
+                        <option value="bottom">Bottom (Pants, Skirts, etc.)</option>
+                        <option value="other">Other (Dresses, Accessories, Shoes, etc.)</option>
+                    </select>
+                </div>
+
+                <input type="file" id="clothing-file-input" accept="image/png, image/jpeg, image/webp" class="hidden">
+
+                <div id="upload-modal-error" class="error-message mb-4 hidden text-red-600 text-sm"></div>
+
+                <div class="flex justify-end space-x-3">
+                     <button type="button" id="upload-modal-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded text-sm font-semibold transition duration-150 ease-in-out">Cancel</button>
+                     <button type="submit" id="upload-modal-confirm" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded text-sm font-semibold transition duration-150 ease-in-out">Choose File & Upload</button>
+                </div>
+
+            </form>
+            </div>
+    </div>
+
+    <canvas id="outfit-canvas" class="hidden"></canvas> <footer id="main-footer" class="bg-gray-800 text-white text-center py-4 mt-auto">
+        <p>&copy; 2025 Virtual TRY ON. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRY ON - Login / Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body id="login-page">
+
+    <div class="w-full text-center py-4">
+        <a href="index.html" class="font-['Pacifico'] text-4xl text-[#4a332e] hover:text-[#6d4c41] transition-colors duration-200">TRY ON</a>
+    </div>
+
+    <div class="container" id="container">
+        <div class="form-container sign-up">
+            <form id="register-form">
+                <h1>Create Account</h1>
+                <div class="social-icons">
+                    <a href="#" class="icon" aria-label="Register with Google"><i class="fa-brands fa-google-plus-g"></i></a>
+                    <a href="#" class="icon" aria-label="Register with Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="icon" aria-label="Register with GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="icon" aria-label="Register with LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                <span>or use your email for registration</span>
+
+                <div class="form-control">
+                    <label for="register-name" class="sr-only">Full Name</label>
+                    <input type="text" id="register-name" name="fullname" placeholder="Full Name" required>
+                    <i class="fas fa-check-circle"></i>
+                    <i class="fas fa-exclamation-circle"></i>
+                    <small>Error Message</small>
+                </div>
+                <div class="form-control">
+                     <label for="register-email" class="sr-only">Email</label>
+                    <input type="email" id="register-email" name="email" placeholder="Email" required>
+                    <i class="fas fa-check-circle"></i>
+                    <i class="fas fa-exclamation-circle"></i>
+                    <small>Error Message</small>
+                </div>
+                <div class="form-control password-container">
+                    <label for="register-password" class="sr-only">Password</label>
+                    <input type="password" id="register-password" name="password" placeholder="Password (min 6 chars)" required minlength="6">
+                    <i class="fas fa-eye password-toggle-icon" data-target="register-password"></i>
+                    <i class="fas fa-check-circle validation-icon-check"></i>
+                    <i class="fas fa-exclamation-circle validation-icon-error"></i>
+                    <small>Error Message</small>
+                </div>
+
+                <div id="register-message" class="success-message hidden"></div>
+                <div id="register-error" class="error-message hidden"></div>
+
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+
+        <div class="form-container sign-in">
+             <form id="login-form">
+                <h1>Sign In</h1>
+                <div class="social-icons">
+                    <a href="#" class="icon" aria-label="Login with Google"><i class="fa-brands fa-google-plus-g"></i></a>
+                    <a href="#" class="icon" aria-label="Login with Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="icon" aria-label="Login with GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="icon" aria-label="Login with LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                <span>or use your email password</span>
+
+                 <div class="form-control">
+                     <label for="login-email" class="sr-only">Email</label>
+                    <input type="email" id="login-email" name="email" placeholder="Email" required>
+                    <i class="fas fa-check-circle"></i>
+                    <i class="fas fa-exclamation-circle"></i>
+                    <small>Error Message</small>
+                </div>
+                <div class="form-control password-container">
+                     <label for="login-password" class="sr-only">Password</label>
+                    <input type="password" id="login-password" name="password" placeholder="Password" required>
+                     <i class="fas fa-eye password-toggle-icon" data-target="login-password"></i>
+                     <i class="fas fa-check-circle validation-icon-check"></i>
+                     <i class="fas fa-exclamation-circle validation-icon-error"></i>
+                    <small>Error Message</small>
+                </div>
+
+                 <div id="login-error" class="error-message hidden"></div>
+
+                <a href="forgot_password.html">Forgot Your Password?</a>
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <img src="C:\Users\Administrator\Desktop\try on 2\pic3.jpg" alt="Virtual Try-on Illustration" class="img-sizes">
+                    <h1>Welcome Back!</h1>
+                    <p>Enter your personal details to use all of site features</p>
+                    <button class="hidden" id="login">Sign In</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                     <img src="C:\Users\Administrator\Desktop\try on 2\2pic.png" alt="StyleMe Virtual Logo" class="img-size">
+                    <h1>Hello, Friend!</h1>
+                    <p>Register with your personal details to use all of site features</p>
+                    <button class="hidden" id="register">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
