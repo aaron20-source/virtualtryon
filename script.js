@@ -39,26 +39,26 @@ const baseClothingCategories = {
 // Predefined Clothing Items (Add 'type' based on category)
 // Using placehold.co for image placeholders. Replaced local paths with placeholders.
 const predefinedClothingItems = [
-    { id: 'item_tops_1', name: 'Green short-sleeve shirt', src: 'C:/Users/Administrator/Desktop/try on 2/14th.png', category: 'Tops/Shirts', gender: 'unisex', type: 'top' },
-    { id: 'item_tops_2', name: 'Black shirt with pockets', src: 'C:/Users/Administrator/Desktop/try on 2/17th.png', category: 'Tops/Shirts', gender: 'male', type: 'top' },
-    { id: 'item_tops_3', name: 'White blouse with a bow', src: 'C:/Users/Administrator/Desktop/try on 2/12th.png', category: 'Tops/Shirts', gender: 'female', type: 'top' },
+    { id: 'item_tops_1', name: 'Green short-sleeve shirt', src: './14th.png', category: 'Tops/Shirts', gender: 'unisex', type: 'top' },
+    { id: 'item_tops_2', name: 'Black shirt with pockets', src: './17th.png', category: 'Tops/Shirts', gender: 'male', type: 'top' },
+    { id: 'item_tops_3', name: 'White blouse with a bow', src: './12th.png', category: 'Tops/Shirts', gender: 'female', type: 'top' },
     // Outerwear
-    { id: 'item_outer_1', name: 'Denim Jacket', src: 'C:/Users/Administrator/Desktop/try on 2/21.png', category: 'Outerwear', gender: 'unisex', type: 'top' },
-    { id: 'item_outer_2', name: 'Black short-sleeve shirt with white stitching', src: 'C:/Users/Administrator/Desktop/try on 2/5th.png', category: 'Outerwear', gender: 'male', type: 'top' },
-    { id: 'item_outer_3', name: 'Beige cropped sweater', src: 'C:/Users/Administrator/Desktop/try on 2/6th.png', category: 'Outerwear', gender: 'female', type: 'top' },
+    { id: 'item_outer_1', name: 'Denim Jacket', src: './21.png', category: 'Outerwear', gender: 'unisex', type: 'top' },
+    { id: 'item_outer_2', name: 'Black short-sleeve shirt with white stitching', src: './5th.png', category: 'Outerwear', gender: 'male', type: 'top' },
+    { id: 'item_outer_3', name: 'Beige cropped sweater', src: './6th.png', category: 'Outerwear', gender: 'female', type: 'top' },
     // Dresses
-    { id: 'item_dress_1', name: 'Black dress/Business casual', src: 'C:/Users/Administrator/Desktop/try on 2/22.png', category: 'Dresses', gender: 'female', type: 'other' },
-    { id: 'item_dress_2', name: 'Brown sleeveless dress', src: 'C:/Users/Administrator/Desktop/try on 2/9th.png', category: 'Dresses', gender: 'female', type: 'other' },
-    { id: 'item_dress_3', name: 'Red dress with pleats and gold buttons', src: 'C:/Users/Administrator/Desktop/try on 2/10th.png', category: 'Dresses', gender: 'female', type: 'other' },
+    { id: 'item_dress_1', name: 'Black dress/Business casual', src: './22.png', category: 'Dresses', gender: 'female', type: 'other' },
+    { id: 'item_dress_2', name: 'Brown sleeveless dress', src: './9th.png', category: 'Dresses', gender: 'female', type: 'other' },
+    { id: 'item_dress_3', name: 'Red dress with pleats and gold buttons', src: './10th.png', category: 'Dresses', gender: 'female', type: 'other' },
     // Bottoms/Jeans
-    { id: 'item_bottoms_1', name: 'Dark blue jeans', src: 'C:/Users/Administrator/Desktop/try on 2/2nd.png', category: 'Bottoms/Jeans', gender: 'unisex', type: 'bottom' },
-    { id: 'item_bottoms_2', name: 'Black wide-leg pants', src: 'C:/Users/Administrator/Desktop/try on 2/20.png', category: 'Bottoms/Jeans', gender: 'male', type: 'bottom' },
-    { id: 'item_bottoms_3', name: 'Marni low-rise Flared Trousers', src: 'C:/Users/Administrator/Desktop/try on 2/23.png', category: 'Bottoms/Jeans', gender: 'female', type: 'bottom' },
+    { id: 'item_bottoms_1', name: 'Dark blue jeans', src: './2nd.png', category: 'Bottoms/Jeans', gender: 'unisex', type: 'bottom' },
+    { id: 'item_bottoms_2', name: 'Black wide-leg pants', src: './20.png', category: 'Bottoms/Jeans', gender: 'male', type: 'bottom' },
+    { id: 'item_bottoms_3', name: 'Marni low-rise Flared Trousers', src: './23.png', category: 'Bottoms/Jeans', gender: 'female', type: 'bottom' },
 
     // Skirts
-    { id: 'item_skirt_1', name: 'Red pleated skirt', src: 'C:/Users/Administrator/Desktop/try on 2/7th.png', category: 'Skirts', gender: 'female', type: 'bottom' },
-    { id: 'item_skirt_2', name: 'White ruched skirt', src: 'C:/Users/Administrator/Desktop/try on 2/8th.png', category: 'Skirts', gender: 'female', type: 'bottom' },
-    { id: 'item_skirt_3', name: 'Black maxi skirt', src: 'C:/Users/Administrator/Desktop/try on 2/13th.png', category: 'Skirts', gender: 'female', type: 'bottom' },
+    { id: 'item_skirt_1', name: 'Red pleated skirt', src: './7th.png', category: 'Skirts', gender: 'female', type: 'bottom' },
+    { id: 'item_skirt_2', name: 'White ruched skirt', src: './8th.png', category: 'Skirts', gender: 'female', type: 'bottom' },
+    { id: 'item_skirt_3', name: 'Black maxi skirt', src: './13th.png', category: 'Skirts', gender: 'female', type: 'bottom' },
     // Accessories (Examples)
 ];
 
